@@ -10,6 +10,7 @@ class CityCard extends StatelessWidget {
   final String tempRange;
   final bool isCurrentLocation;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const CityCard({
     super.key,
@@ -20,6 +21,7 @@ class CityCard extends StatelessWidget {
     required this.tempRange,
     this.isCurrentLocation = false,
     this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -44,7 +46,7 @@ class CityCard extends StatelessWidget {
                   end: Alignment.centerRight,
                   colors: [
                     Colors.transparent,
-                    AppTheme.accentPurple.withOpacity(0.1),
+                    AppTheme.accentBlue.withOpacity(0.1),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -75,7 +77,7 @@ class CityCard extends StatelessWidget {
                           Text(
                             subtitle!,
                             style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppTheme.accentPurple),
+                                ?.copyWith(color: AppTheme.accentBlue),
                           ),
                         ],
                       ],
@@ -87,6 +89,13 @@ class CityCard extends StatelessWidget {
                       context,
                     ).textTheme.displayMedium?.copyWith(fontSize: 56),
                   ),
+                  if (onDelete != null)
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      color: AppTheme.tertiaryText,
+                      onPressed: onDelete,
+                      tooltip: 'Remove city',
+                    ),
                 ],
               ),
               const SizedBox(height: AppTheme.spacing16),

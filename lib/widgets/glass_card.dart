@@ -33,10 +33,16 @@ class GlassCard extends StatelessWidget {
           height: height,
           padding: padding ?? const EdgeInsets.all(AppTheme.spacing16),
           decoration: BoxDecoration(
-            color: AppTheme.cardBackground,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF5B6B9E).withOpacity(0.65),
+                const Color(0xFF4A5A8A).withOpacity(0.55),
+              ],
+            ),
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: AppTheme.cardBorder, width: 1),
-            boxShadow: AppTheme.subtleShadow,
+            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
           ),
           child: child,
         ),

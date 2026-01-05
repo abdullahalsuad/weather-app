@@ -1,34 +1,39 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Color Palette - Professional Dark Blue/Purple Gradient
-  static const Color darkBlue = Color(0xFF1A1F3A);
-  static const Color mediumBlue = Color(0xFF2D3561);
-  static const Color lightBlue = Color(0xFF4A5789);
-  static const Color accentPurple = Color(0xFF6B7FD7);
-  static const Color cardBlue = Color(0xFF394575);
+  // Color Palette - Stunning Dark Blue Gradient
+  static const Color deepNavy = Color(0xFF0A1128);
+  static const Color darkBlue = Color(0xFF1C2951);
+  static const Color richBlue = Color(0xFF2F4B8F);
+  static const Color accentBlue = Color(0xFF4A73E8);
+  static const Color lightAccent = Color(0xFF6B9AFF);
 
-  // Gradient Colors
+  // Gradient Colors - Beautiful Blue Dark Gradient
   static const List<Color> backgroundGradient = [
-    Color(0xFF1A1F3A),
-    Color(0xFF2D3561),
-    Color(0xFF3D4A7A),
+    Color(0xFF0A1128), // Deep Navy Blue
+    Color(0xFF1C2951), // Dark Blue
+    Color(0xFF2F4B8F), // Rich Blue
+    Color(0xFF1E3A6F), // Medium Blue
   ];
 
   static const List<Color> cardGradient = [
-    Color(0xFF394575),
-    Color(0xFF2D3561),
+    Color(0xFF2F4B8F),
+    Color(0xFF1C2951),
   ];
 
   // Text Colors
   static const Color primaryText = Color(0xFFFFFFFF);
-  static const Color secondaryText = Color(0xFFB8C1E8);
-  static const Color tertiaryText = Color(0xFF8A94BC);
+  static const Color secondaryText = Color(0xFFD4E2FF);
+  static const Color tertiaryText = Color(0xFFA8BFEC);
 
-  // Functional Colors
-  static const Color cardBackground = Color(0x33FFFFFF);
-  static const Color cardBorder = Color(0x1AFFFFFF);
-  static const Color iconColor = Color(0xFFE8EEFF);
+  // Functional Colors - Increased opacity for better visibility
+  static const Color cardBackground = Color(
+    0x4DFFFFFF,
+  ); // Increased from 0x33 to 0x4D
+  static const Color cardBorder = Color(
+    0x33FFFFFF,
+  ); // Increased from 0x1A to 0x33
+  static const Color iconColor = Color(0xFFFFFFFF);
 
   // Typography
   static const String fontFamily = 'Inter';
@@ -165,10 +170,10 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: darkBlue,
       colorScheme: const ColorScheme.dark(
-        primary: accentPurple,
-        secondary: lightBlue,
-        surface: cardBlue,
-        background: darkBlue,
+        primary: accentBlue,
+        secondary: richBlue,
+        surface: darkBlue,
+        background: deepNavy,
         onPrimary: primaryText,
         onSecondary: primaryText,
         onSurface: primaryText,

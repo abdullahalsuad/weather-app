@@ -4,7 +4,9 @@ import '../widgets/gradient_background.dart';
 import '../utils/mock_data.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final Function(String)? onCitySelected;
+
+  const SearchScreen({super.key, this.onCitySelected});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -13,6 +15,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _filteredCities = [];
+  List<String> _selectedCities = [];
   bool _isSearching = false;
 
   @override
@@ -86,7 +89,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               AppTheme.radiusMedium,
                             ),
                             borderSide: const BorderSide(
-                              color: AppTheme.accentPurple,
+                              color: AppTheme.accentBlue,
                             ),
                           ),
                         ),
@@ -119,11 +122,19 @@ class _SearchScreenState extends State<SearchScreen> {
                     spacing: AppTheme.spacing12,
                     runSpacing: AppTheme.spacing12,
                     children: _filteredCities.map((city) {
-                      final isSelected = city == 'Uttara';
+                      final isSelected = _selectedCities.contains(city);
                       return Material(
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
+                            if (widget.onCitySelected != null) {
+                              widget.onCitySelected!(city);
+                              setState(() {
+                                if (!_selectedCities.contains(city)) {
+                                  _selectedCities.add(city);
+                                }
+                              });
+                            }
                             Navigator.pop(context);
                           },
                           borderRadius: BorderRadius.circular(
@@ -136,14 +147,14 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppTheme.accentPurple.withOpacity(0.3)
+                                  ? AppTheme.accentBlue.withOpacity(0.3)
                                   : AppTheme.cardBackground,
                               borderRadius: BorderRadius.circular(
                                 AppTheme.radiusLarge,
                               ),
                               border: Border.all(
                                 color: isSelected
-                                    ? AppTheme.accentPurple
+                                    ? AppTheme.accentBlue
                                     : AppTheme.cardBorder,
                                 width: 1,
                               ),
@@ -156,7 +167,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   style: Theme.of(context).textTheme.bodyLarge
                                       ?.copyWith(
                                         color: isSelected
-                                            ? AppTheme.accentPurple
+                                            ? AppTheme.accentBlue
                                             : AppTheme.primaryText,
                                       ),
                                 ),
@@ -164,7 +175,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   const SizedBox(width: AppTheme.spacing8),
                                   const Icon(
                                     Icons.check_circle,
-                                    color: AppTheme.accentPurple,
+                                    color: AppTheme.accentBlue,
                                     size: 18,
                                   ),
                                 ],
