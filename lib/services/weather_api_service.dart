@@ -46,15 +46,32 @@ class WeatherApiService {
         'timezone=auto',
       );
 
-      final response = await http.get(url);
+      print('DEBUG API: Calling ${url.toString()}');
+      final response = await http
+          .get(url)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw Exception(
+                'Connection timeout - please check your internet',
+              );
+            },
+          );
 
+      print('DEBUG API: Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return _parseWeatherData(data, locationName);
       } else {
-        throw Exception('Failed to load weather data');
+        throw Exception(
+          'Failed to load weather data (Status: ${response.statusCode})',
+        );
       }
+    } on http.ClientException catch (e) {
+      print('DEBUG API: ClientException - $e');
+      throw Exception('Network error: Unable to connect to weather service');
     } catch (e) {
+      print('DEBUG API: Error - $e');
       throw Exception('Error fetching weather: $e');
     }
   }

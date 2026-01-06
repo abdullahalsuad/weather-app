@@ -44,58 +44,93 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final List<Map<String, dynamic>> citiesData = [];
+      String? locationError;
 
       // Try to get user location first (this is always the first page)
       try {
+        print('DEBUG: Attempting to get location...');
         final position = await _getCurrentLocation();
+
         if (position != null) {
-          // Get location name from coordinates using reverse geocoding
-          String locationName = await _weatherService.getLocationName(
-            position.latitude,
-            position.longitude,
+          print(
+            'DEBUG: Location obtained: ${position.latitude}, ${position.longitude}',
           );
 
-          final userWeather = await _weatherService.getWeatherByCoordinates(
-            position.latitude,
-            position.longitude,
-            locationName,
-          );
-          final hourlyForecast = await _weatherService.getHourlyForecast(
-            position.latitude,
-            position.longitude,
-          );
-          final dailyForecast = await _weatherService.getDailyForecast(
-            position.latitude,
-            position.longitude,
-          );
+          try {
+            // Get location name from coordinates using reverse geocoding
+            print('DEBUG: Getting location name...');
+            String locationName = await _weatherService
+                .getLocationName(position.latitude, position.longitude)
+                .timeout(
+                  const Duration(seconds: 10),
+                  onTimeout: () => 'My Location',
+                );
+            print('DEBUG: Location name: $locationName');
 
-          citiesData.add({
-            'location': locationName,
-            'weather': userWeather,
-            'hourly': hourlyForecast,
-            'daily': dailyForecast,
-            'isUserLocation': true,
-          });
+            print('DEBUG: Fetching weather data...');
+            final userWeather = await _weatherService
+                .getWeatherByCoordinates(
+                  position.latitude,
+                  position.longitude,
+                  locationName,
+                )
+                .timeout(const Duration(seconds: 15));
+
+            print('DEBUG: Fetching hourly forecast...');
+            final hourlyForecast = await _weatherService
+                .getHourlyForecast(position.latitude, position.longitude)
+                .timeout(const Duration(seconds: 15));
+
+            print('DEBUG: Fetching daily forecast...');
+            final dailyForecast = await _weatherService
+                .getDailyForecast(position.latitude, position.longitude)
+                .timeout(const Duration(seconds: 15));
+
+            citiesData.add({
+              'location': locationName,
+              'weather': userWeather,
+              'hourly': hourlyForecast,
+              'daily': dailyForecast,
+              'isUserLocation': true,
+            });
+            print('DEBUG: Successfully loaded weather for current location');
+          } catch (e) {
+            print('DEBUG: Error fetching weather data: $e');
+            locationError = 'Failed to fetch weather: ${e.toString()}';
+            throw e;
+          }
+        } else {
+          print('DEBUG: Could not get location (position is null)');
+          locationError = 'Unable to get your location. Please enable GPS.';
         }
       } catch (e) {
-        print('Failed to get user location: $e');
+        print('DEBUG: Location error: $e');
+        locationError = locationError ?? 'Location error: ${e.toString()}';
         // Continue without user location if it fails
       }
 
       // Load saved cities that user has added
       for (String cityName in savedCityNames) {
         try {
-          final weatherData = await _weatherService.getWeatherByCity(cityName);
+          print('DEBUG: Loading weather for $cityName...');
+          final weatherData = await _weatherService
+              .getWeatherByCity(cityName)
+              .timeout(const Duration(seconds: 15));
           final coords = await _weatherService.getCityCoordinates(cityName);
 
-          final hourlyForecast = await _weatherService.getHourlyForecast(
-            coords?['lat'] ?? 23.8103,
-            coords?['lon'] ?? 90.4125,
-          );
-          final dailyForecast = await _weatherService.getDailyForecast(
-            coords?['lat'] ?? 23.8103,
-            coords?['lon'] ?? 90.4125,
-          );
+          final hourlyForecast = await _weatherService
+              .getHourlyForecast(
+                coords?['lat'] ?? 23.8103,
+                coords?['lon'] ?? 90.4125,
+              )
+              .timeout(const Duration(seconds: 15));
+
+          final dailyForecast = await _weatherService
+              .getDailyForecast(
+                coords?['lat'] ?? 23.8103,
+                coords?['lon'] ?? 90.4125,
+              )
+              .timeout(const Duration(seconds: 15));
 
           citiesData.add({
             'location': cityName,
@@ -104,17 +139,37 @@ class _HomeScreenState extends State<HomeScreen> {
             'daily': dailyForecast,
             'isUserLocation': false,
           });
+          print('DEBUG: Successfully loaded weather for $cityName');
         } catch (e) {
-          print('Error loading weather for $cityName: $e');
+          print('DEBUG: Error loading weather for $cityName: $e');
         }
       }
 
-      // If no cities loaded at all, show error
+      // If no cities loaded at all, show specific error
       if (citiesData.isEmpty) {
         setState(() {
           _isLoading = false;
-          _errorMessage =
-              'Unable to load weather data. Please check your internet connection.';
+          // Show more specific error message
+          if (locationError != null) {
+            if (locationError.contains('timeout') ||
+                locationError.contains('TimeoutException')) {
+              _errorMessage =
+                  'Connection timeout. Please check your internet connection and try again.';
+            } else if (locationError.contains('SocketException') ||
+                locationError.contains('Failed host lookup')) {
+              _errorMessage =
+                  'No internet connection. Please check your network settings.';
+            } else if (locationError.contains('GPS') ||
+                locationError.contains('location')) {
+              _errorMessage =
+                  'Unable to get location. Please ensure GPS is enabled and location permission is granted.';
+            } else {
+              _errorMessage = locationError;
+            }
+          } else {
+            _errorMessage =
+                'Unable to load weather data. Please check your internet connection.';
+          }
         });
         return;
       }
@@ -124,9 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      print('DEBUG: Top-level error: $e');
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Failed to load weather data: $e';
+        _errorMessage = 'Error: ${e.toString()}';
       });
     }
   }
